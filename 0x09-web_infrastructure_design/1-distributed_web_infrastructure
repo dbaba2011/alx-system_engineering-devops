@@ -1,0 +1,27 @@
+This is the design of a three-server web infrastructure for hosting the website www.foobar.com and address the requirements and issues using simple language.
+Server 1:
+Web Server (Nginx): Nginx will receive and handle incoming web requests.
+Server 2:
+Application Server: The application server will run the code base of the website, process user requests, and generate dynamic content.
+Server 3:
+Load Balancer (HAproxy): The load balancer will distribute incoming traffic across multiple servers to improve scalability and provide redundancy.
+Application Files: These files contain the code base of the website, including HTML, CSS, JavaScript, and any server-side programming language files.
+Database (MySQL):
+Primary Node: The primary node is the main database server that handles read and write operations. It serves as the authoritative source for data.
+Replica Node: The replica node(s) are additional database servers that replicate data from the primary node. They handle read operations to reduce the load on the primary node.
+Now, let's explain some specifics about this infrastructure:
+Load Balancer: The load balancer is added to distribute incoming traffic among multiple servers. It uses a distribution algorithm, such as round-robin or least connections, to decide which server should handle each request.
+Distribution Algorithm: The load balancer can be configured with a distribution algorithm, such as round-robin, which assigns each incoming request to the next available server in a cyclic manner. Alternatively, the least connections algorithm directs requests to the server with the fewest active connections, aiming to balance the load across servers.
+Active-Active vs. Active-Passive: In this setup, the load balancer enables an active-active configuration where all servers are actively serving traffic. Active-passive setup would involve designating some servers as standby or backup, only becoming active if the primary servers fail.
+Primary-Replica Database Cluster: The primary-replica cluster involves replicating data from the primary node to the replica nodes. The primary node handles both read and write operations, while the replica nodes primarily handle read operations.
+Difference Between Primary and Replica Nodes: The primary node is responsible for processing write operations, updating data, and serving as the primary source of truth. Replica nodes replicate data from the primary node and handle read operations, reducing the load on the primary node and providing scalability.
+Now, let's address the issues with this infrastructure:
+Single Point of Failure (SPOF): While the infrastructure includes multiple servers, each individual component (web server, application server, and database) still exists as a single point of failure. If any of these components fail, it can cause downtime for the website.
+Security Issues: The infrastructure lacks security measures, such as a firewall or HTTPS encryption. This leaves the website vulnerable to attacks and potential data breaches.
+No Monitoring: Without monitoring tools or systems in place, it becomes difficult to proactively identify and resolve issues. This can result in delayed responses to problems, impacting the availability and performance of the website.
+To address these issues, we can consider the following solutions:
+High Availability: Introduce additional redundant servers for each component, including web servers, application servers, and database nodes. This helps ensure that if one server fails, the other(s) can handle the traffic.
+Implement Security Measures: Set up a firewall to protect the infrastructure from unauthorised access. Additionally, enable HTTPS encryption using SSL/TLS certificates to secure the data transmission between the server and the user's browser.
+Monitoring: Implement a monitoring system to track the health and performance of servers, applications, and databases. This enables proactive detection and resolution of issues, reducing downtime and optimising website performance.
+By implementing these solutions, we can improve the availability, scalability, security, and monitoring capabilities of the web infrastructure.
+

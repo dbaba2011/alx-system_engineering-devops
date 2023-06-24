@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#Configure the SSH client to enable passwordless authentication using the privat#e key ~/.ssh/school and refuse password-based authentication.
+Host 216487-web-01
+    Hostname example.com
+    User ubuntu
+    IdentityFile ~/.ssh/school
+    PasswordAuthentication no

@@ -28,11 +28,12 @@ def top_ten(subreddit):
 
             for i, post in enumerate(posts[:10], start=1):
                 title = post['data']['title']
-                print("{}: {}".format(i, title))
+                print(title)
         except (KeyError, ValueError):
-            print("Error: Unable to fetch posts.")
+            print("None")
     else:
         print("None")
+
 
 if __name__ == '__main__':
     import sys

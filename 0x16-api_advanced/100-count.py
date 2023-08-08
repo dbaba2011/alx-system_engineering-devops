@@ -1,61 +1,58 @@
 #!/usr/bin/python3
-"""
-Module to recursively count keywords in titles of all hot articles in a subreddit
-"""
+"""queries the Reddit API, parses the title of all 
+hot articles, and prints a sorted count of given 
+keywords (case-insensitive, delimited by spaces. 
+Javascript should count as javascript, but java 
+should not)."""
 
+import json
 import requests
 
 
-def count_words(subreddit, word_list, after=None, count_dict=None):
-    """
-    Recursively count keywords in titles of all hot articles in a subreddit.
+def count_words(subreddit, word_list, after="", count=[]):
+    """getting the numbers of words"""
 
-    Args:
-        subreddit (str): The name of the subreddit.
-        word_list (list): List of keywords to count.
-        after (str): ID of the post after which to continue pagination.
-        count_dict (dict): Dictionary to store keyword counts.
+    if after == "":
+        count = [0] * len(word_list)
 
-    Returns:
-        None
-    """
-    if count_dict is None:
-        count_dict = {}
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    request = requests.get(url,
+                           params={'after': after},
+                           allow_redirects=False,
+                           headers={'user-agent': 'bhalut'})
 
-    headers = {'User-Agent': 'MyRedditBot/1.0'}
-    url = 'https://www.reddit.com/r/{}/hot/.json'.format(subreddit)
-    params = {'after': after} if after else None
+    if request.status_code == 200:
+        data = request.json()
 
-    response = requests.get(url, headers=headers, params=params)
+        for topic in (data['data']['children']):
+            for word in topic['data']['title'].split():
+                for i in range(len(word_list)):
+                    if word_list[i].lower() == word.lower():
+                        count[i] += 1
 
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            posts = data['data']['children']
+        after = data['data']['after']
+        if after is None:
+            save = []
+            for i in range(len(word_list)):
+                for j in range(i + 1, len(word_list)):
+                    if word_list[i].lower() == word_list[j].lower():
+                        save.append(j)
+                        count[i] += count[j]
 
-            if not posts:
-                sorted_counts = sorted(count_dict.items(), key=lambda x: (-x[1], x[0]))
-                for word, count in sorted_counts:
-                    print("{}: {}".format(word, count))
-                return
+            for i in range(len(word_list)):
+                for j in range(i, len(word_list)):
+                    if (count[j] > count[i] or
+                            (word_list[i] > word_list[j] and
+                             count[j] == count[i])):
+                        word = count[i]
+                        count[i] = count[j]
+                        count[j] = words
+                        words = word_list[i]
+                        word_list[i] = word_list[j]
+                        word_list[j] = words
 
-            for post in posts:
-                title = post['data']['title'].lower()
-                for word in word_list:
-                    if title.count(word) > 0:
-                        count_dict[word] = count_dict.get(word, 0) + title.count(word)
-
-            after = data['data']['after']
-            return count_words(subreddit, word_list, after, count_dict)
-        except (KeyError, ValueError):
-            return
-    else:
-        return
-
-
-if __name__ == '__main__':
-    import sys
-    if len(sys.argv) < 3:
-        print("Usage: {} <subreddit> <list of keywords>".format(sys.argv[0]))
-    else:
-        count_words(sys.argv[1], [x for x in sys.argv[2].split()])
+            for i in range(len(word_list)):
+                if (count[i] > 0) and i not in save:
+                    print("{}: {}".format(word_list[i].lower(), count[i]))
+        else:
+            count_words(subreddit, word_list, after, count)
